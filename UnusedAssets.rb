@@ -17,7 +17,7 @@ class ImagesetReferenceChecker
     imageset_names.reject! { |name| sequential_name?(name, imageset_names) }
 
     # Read other files to find references to these .imageset names
-    other_files = Dir.glob("**/*.{swift,m,h,xib,storyboard,json,plist,pbxproj}").reject { |path| File.directory?(path) || path.end_with?("XCAssets+Generated.swift") }
+    other_files = Dir.glob("**/*.{swift,m,h,xib,storyboard,json}").reject { |path| File.directory?(path) || path.end_with?("XCAssets+Generated.swift") }
     puts "\nSearching in other files for Imageset references..."
 
     find_references_in_files(imageset_names, other_files)

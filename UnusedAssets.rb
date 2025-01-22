@@ -13,11 +13,22 @@ class ImagesetReferenceChecker
     puts "Found Imagesets: #{imageset_names.length}"
     puts imageset_names.join("\n")
 
+    # Filter out imagesets that are part of a sequence (e.g., timer0, timer1, timer2 or timer_0, timer_1, timer_2)
+    imageset_names.reject! { |name| sequential_name?(name, imageset_names) }
+
     # Read other files to find references to these .imageset names
-    other_files = Dir.glob("**/*.{swift,m,h,xib,storyboard,json,.plist}").reject { |path| File.directory?(path) || path.end_with?("XCAssets+Generated.swift") }
+    other_files = Dir.glob("**/*.{swift,m,h,xib,storyboard,json,plist,pbxproj}").reject { |path| File.directory?(path) || path.end_with?("XCAssets+Generated.swift") }
     puts "\nSearching in other files for Imageset references..."
 
     find_references_in_files(imageset_names, other_files)
+  end
+
+  def sequential_name?(name, all_names)
+    base_match = name.match(/^(.*?)(\d+|_\d+)$/)
+    return false unless base_match
+
+    base = base_match[1] # Extract the base name (e.g., "timer" from "timer0")
+    all_names.any? { |other_name| other_name.match(/^#{Regexp.escape(base)}(\d+|_\d+)$/) && other_name != name }
   end
 
   def find_references_in_files(imageset_names, files)
